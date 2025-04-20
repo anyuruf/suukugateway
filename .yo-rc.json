@@ -1,0 +1,32 @@
+{
+  "generator-jhipster": {
+    "applicationIndex": 0,
+    "applicationType": "gateway",
+    "applications": {
+      "suuku_invoice": {
+        "applicationIndex": 2,
+        "serverPort": "8082"
+      },
+      "suuku_product": {
+        "applicationIndex": 1,
+        "serverPort": "8081"
+      }
+    },
+    "authenticationType": "oauth2",
+    "baseName": "suuku_gateway",
+    "buildTool": "maven",
+    "cacheProvider": "infinispan",
+    "entities": ["Customer", "Product", "ProductCategory", "ProductOrder", "OrderItem", "Invoice", "Shipment"],
+    "jhipsterVersion": "8.10.0",
+    "languages": ["en"],
+    "lastLiquibaseTimestamp": 1745144207000,
+    "nativeLanguage": "en",
+    "packageName": "net.suuku.gateway",
+    "prodDatabaseType": "postgresql",
+    "reactive": true,
+    "serverPort": 8080,
+    "serviceDiscoveryType": "no",
+    "skipClient": true,
+    "skipUserManagement": true
+  }
+}

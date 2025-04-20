@@ -1,0 +1,51 @@
+{
+  "annotations": {
+    "changelogDate": "20250420101147"
+  },
+  "applications": ["suuku_gateway", "suuku_product"],
+  "clientRootFolder": "suuku_product",
+  "databaseType": "sql",
+  "documentation": "Entities for product microservice",
+  "fields": [
+    {
+      "fieldName": "name",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "price",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["required", "min"],
+      "fieldValidateRulesMin": "0"
+    },
+    {
+      "fieldName": "itemSize",
+      "fieldType": "Size",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "S,M,L,XL,XXL"
+    },
+    {
+      "fieldName": "image",
+      "fieldType": "ImageBlob"
+    }
+  ],
+  "microserviceName": "suuku_product",
+  "name": "Product",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "productCategory",
+      "otherEntityRelationshipName": "product",
+      "relationshipName": "productCategory",
+      "relationshipSide": "right",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}
