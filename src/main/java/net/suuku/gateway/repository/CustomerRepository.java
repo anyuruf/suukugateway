@@ -11,7 +11,6 @@ import reactor.core.publisher.Mono;
 /**
  * Spring Data R2DBC repository for the Customer entity.
  */
-@SuppressWarnings("unused")
 @Repository
 public interface CustomerRepository extends ReactiveCrudRepository<Customer, Long>, CustomerRepositoryInternal {
     Flux<Customer> findAllBy(Pageable pageable);

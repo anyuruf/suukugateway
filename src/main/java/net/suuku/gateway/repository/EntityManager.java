@@ -33,8 +33,8 @@ import reactor.core.publisher.Mono;
 @Component
 public class EntityManager {
 
-    public static final String ENTITY_ALIAS = "e";
-    public static final String ALIAS_PREFIX = "e_";
+    public static final String ENTITY_ALIAS = "s";
+    public static final String ALIAS_PREFIX = "s_";
 
     public static class LinkTable {
 
@@ -53,13 +53,13 @@ public class EntityManager {
     }
 
     private final SqlRenderer sqlRenderer;
-    private final UpdateMapper updateMapper;
+
     private final R2dbcEntityTemplate r2dbcEntityTemplate;
     private final StatementMapper statementMapper;
 
+    @SuppressWarnings("deprecation")
     public EntityManager(SqlRenderer sqlRenderer, UpdateMapper updateMapper, R2dbcEntityTemplate r2dbcEntityTemplate) {
         this.sqlRenderer = sqlRenderer;
-        this.updateMapper = updateMapper;
         this.r2dbcEntityTemplate = r2dbcEntityTemplate;
         this.statementMapper = r2dbcEntityTemplate.getDataAccessStrategy().getStatementMapper();
     }
@@ -177,6 +177,7 @@ public class EntityManager {
         return deleteFromLinkTable(table, entityId).then(
             Flux.fromStream(referencedIds)
                 .flatMap((Object referenceId) -> {
+                    @SuppressWarnings("deprecation")
                     StatementMapper.InsertSpec insert = r2dbcEntityTemplate
                         .getDataAccessStrategy()
                         .getStatementMapper()
@@ -193,6 +194,7 @@ public class EntityManager {
 
     public Mono<Void> deleteFromLinkTable(LinkTable table, Object entityId) {
         Assert.notNull(entityId, "entityId is null");
+        @SuppressWarnings("deprecation")
         StatementMapper.DeleteSpec deleteSpec = r2dbcEntityTemplate
             .getDataAccessStrategy()
             .getStatementMapper()

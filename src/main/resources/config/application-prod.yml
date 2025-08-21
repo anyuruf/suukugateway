@@ -40,10 +40,10 @@ spring:
   # Replace by 'prod, faker' to add the faker context and have sample data loaded in production
   liquibase:
     contexts: prod
-    url: jdbc:postgresql://localhost:5432/suuku_gateway
+    url: jdbc:postgresql://suuku-postgres-rw:5432/suuku_gateway
   r2dbc:
-    url: r2dbc:postgresql://localhost:5432/suuku_gateway
-    username: suuku_gateway
+    url: r2dbc:postgresql://suuku-postgres-rw:5432/suuku_gateway
+    username: suuku_admin
     password:
   thymeleaf:
     cache: true
@@ -89,7 +89,7 @@ jhipster:
     use-json-format: false # By default, logs are not in Json format
     logstash: # Forward logs to logstash over a socket, used by LoggingConfiguration
       enabled: false
-      host: localhost
+      host: suuku-logstash
       port: 5000
       ring-buffer-size: 512
 # ===================================================================

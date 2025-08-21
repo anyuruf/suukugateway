@@ -103,36 +103,27 @@ management:
 spring:
   application:
     name: suuku_gateway
-  cloud:
-    discovery:
-      client:
-        simple:
-          instances:
-            suuku_gateway:
-              - instanceId: suuku_gateway1
-                host: localhost
-                port: 8080
+
     gateway:
       default-filters:
         - TokenRelay
-      discovery:
-        locator:
-          enabled: true
-          lower-case-service-id: true
+      routes:
+        - id: suuku-product
+          uri: lb://suuku-product
           predicates:
-            - name: Path
-              args:
-                pattern: "'/services/'+serviceId.toLowerCase()+'/**'"
+            - Path=/product/**
           filters:
-            - StripPrefix=2
+            - RewritePath=/product, /
+        - id: suuku-invoice
+          uri: lb://suuku-invoice/
+          predicates:
+            - Path=/invoice/**
+          filters:
+            - StripPrefix=1
       httpclient:
         pool:
           max-connections: 1000
-  docker:
-    compose:
-      enabled: true
-      lifecycle-management: start-only
-      file: src/main/docker/services.yml
+
   profiles:
     # The commented value for `active` can be replaced with valid Spring profiles to load.
     # Otherwise, it will be filled in by maven when building the JAR file
@@ -203,7 +194,7 @@ info:
 
 jhipster:
   clientApp:
-    name: 'suukuGatewayApp'
+    name: 'suukuGateway'
   # By default CORS is disabled. Uncomment to enable.
   # cors:
   #   allowed-origins: "http://localhost:8100,http://localhost:9000"

@@ -21,7 +21,7 @@ import reactor.core.publisher.Mono;
  */
 public final class SecurityUtils {
 
-    public static final String CLAIMS_NAMESPACE = "https://www.jhipster.tech/";
+    public static final String CLAIMS_NAMESPACE = "https://www.suuku.net/";
 
     private SecurityUtils() {}
 

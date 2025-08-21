@@ -31,7 +31,7 @@ public class ColumnConverter implements ColumnConverterReactive {
      * @return the value which can be constructed from the input.
      */
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T> T convert(@Nullable Object value, @Nullable Class<T> target) {
         if (value == null || target == null || ClassUtils.isAssignableValue(target, value)) {
             return (T) value;

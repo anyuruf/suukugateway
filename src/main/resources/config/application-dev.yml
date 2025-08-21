@@ -41,12 +41,12 @@ spring:
   liquibase:
     # Remove 'faker' if you do not want the sample data to be loaded automatically
     contexts: dev, faker
-    url: jdbc:postgresql://localhost:5432/suuku_gateway
+    url: jdbc:postgresql://suuku-postgres-rw:5432/suuku_gateway
   messages:
     cache-duration: PT1S # 1 second, see the ISO 8601 standard
   r2dbc:
-    url: r2dbc:postgresql://localhost:5432/suuku_gateway
-    username: suuku_gateway
+    url: r2dbc:postgresql://suuku-postgres-rw:5432/suuku_gateway
+    username: suuku_admin
     password:
   thymeleaf:
     cache: false

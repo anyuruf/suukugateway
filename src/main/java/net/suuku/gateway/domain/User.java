@@ -19,7 +19,7 @@ import org.springframework.data.relational.core.mapping.Table;
 /**
  * A user.
  */
-@Table("jhi_user")
+@Table("suuku_user")
 public class User extends AbstractAuditingEntity<String> implements Serializable, Persistable<String> {
 
     private static final long serialVersionUID = 1L;

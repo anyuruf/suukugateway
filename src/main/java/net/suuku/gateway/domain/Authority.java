@@ -14,7 +14,6 @@ import org.springframework.data.relational.core.mapping.Table;
  */
 @Table("jhi_authority")
 @JsonIgnoreProperties(value = { "new", "id" })
-@SuppressWarnings("common-java:DuplicatedBlocks")
 public class Authority implements Serializable, Persistable<String> {
 
     private static final long serialVersionUID = 1L;

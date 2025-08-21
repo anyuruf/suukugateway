@@ -13,7 +13,6 @@ import org.springframework.data.relational.core.mapping.Table;
  */
 @Schema(description = "Entities for Store Gateway")
 @Table("customer")
-@SuppressWarnings("common-java:DuplicatedBlocks")
 public class Customer implements Serializable {
 
     private static final long serialVersionUID = 1L;
