@@ -18,7 +18,7 @@ public class JacksonConfiguration {
      * @return the corresponding Jackson module.
      */
     @Bean
-    public JavaTimeModule javaTimeModule() {
+    JavaTimeModule javaTimeModule() {
         final JavaTimeModule javaTime = new JavaTimeModule();
         javaTime.addSerializer(
             LocalTime.class,
@@ -33,7 +33,7 @@ public class JacksonConfiguration {
     }
 
     @Bean
-    public Jdk8Module jdk8TimeModule() {
+    Jdk8Module jdk8TimeModule() {
         return new Jdk8Module();
     }
 }

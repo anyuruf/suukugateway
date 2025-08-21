@@ -103,7 +103,7 @@ public class AuthorityResource {
      */
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
-    public Mono<ResponseEntity<Authority>> getAuthority(@PathVariable("id") String id) {
+    public Mono<ResponseEntity<Authority>> getAuthority(@PathVariable String id) {
         LOG.debug("REST request to get Authority : {}", id);
         Mono<Authority> authority = authorityRepository.findById(id);
         return ResponseUtil.wrapOrNotFound(authority);
@@ -117,7 +117,7 @@ public class AuthorityResource {
      */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
-    public Mono<ResponseEntity<Void>> deleteAuthority(@PathVariable("id") String id) {
+    public Mono<ResponseEntity<Void>> deleteAuthority(@PathVariable String id) {
         LOG.debug("REST request to delete Authority : {}", id);
         return authorityRepository
             .deleteById(id)

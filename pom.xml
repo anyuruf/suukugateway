@@ -13,7 +13,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.4</version>
+        <version>3.5.4</version>
         <relativePath/>
         <!-- lookup parent from repository -->
     </parent>
@@ -34,20 +34,20 @@
         <argLine>-Djava.security.egd=file:/dev/./urandom -Xmx256M</argLine>
         <m2e.apt.activation>jdt_apt</m2e.apt.activation>
         <run.addResources>false</run.addResources>
-        <spring-boot.version>${project.parent.version}</spring-boot.version>
+        <spring-boot.version>3.5.4</spring-boot.version>
         <archunit-junit5.version>1.4.0</archunit-junit5.version>
         <blockhound-junit-platform.version>1.0.11.RELEASE</blockhound-junit-platform.version>
         <checkstyle.version>10.22.0</checkstyle.version>
         <commons-beanutils.version>1.10.1</commons-beanutils.version>
         <feign-reactor-bom.version>4.2.1</feign-reactor-bom.version>
         <git-commit-id-maven-plugin.version>9.0.1</git-commit-id-maven-plugin.version>
-        <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
         <jhipster-framework.version>8.10.0</jhipster-framework.version>
         <jib-maven-plugin.architecture>amd64</jib-maven-plugin.architecture>
         <jib-maven-plugin.image>bellsoft/alpaquita-linux-base:stream-musl</jib-maven-plugin.image>
         <jib-maven-plugin.version>3.4.5</jib-maven-plugin.version>
         <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
-        <liquibase-plugin.password/>
+        <!--~~(Cannot invoke "String.equals(Object)" because "this.value" is null)~~>--><liquibase-plugin.password/>
         <liquibase-plugin.url/>
         <liquibase-plugin.username/>
         <mapstruct.version>1.6.3</mapstruct.version>
@@ -183,7 +183,7 @@
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-jaxb-annotations</artifactId>
+            <artifactId>jackson-module-jakarta-xmlbind-annotations</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
@@ -253,10 +253,6 @@
             <artifactId>blockhound-junit-platform</artifactId>
             <version>${blockhound-junit-platform.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.annotation</groupId>
-            <artifactId>jakarta.annotation-api</artifactId>
         </dependency>
         <dependency>
             <groupId>jakarta.persistence</groupId>
@@ -453,8 +449,6 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven-compiler-plugin.version}</version>
                     <configuration>
-                        <source>${java.version}</source>
-                        <target>${java.version}</target>
                         <parameters>true</parameters>
                         <annotationProcessorPaths>
                             <path>
@@ -471,6 +465,7 @@
                                 <artifactId>jaxb-runtime</artifactId>
                             </path>
                         </annotationProcessorPaths>
+                        <release>${java.version}</release>
                     </configuration>
                 </plugin>
                 <plugin>

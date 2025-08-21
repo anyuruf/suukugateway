@@ -1,5 +1,6 @@
 package net.suuku.gateway.service.dto;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 import net.suuku.gateway.domain.User;
@@ -9,6 +10,7 @@ import net.suuku.gateway.domain.User;
  */
 public class UserDTO implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private String id;

@@ -1,6 +1,7 @@
 package net.suuku.gateway.service.dto;
 
 import jakarta.validation.constraints.*;
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Set;
@@ -14,6 +15,7 @@ import net.suuku.gateway.domain.User;
  */
 public class AdminUserDTO implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private String id;

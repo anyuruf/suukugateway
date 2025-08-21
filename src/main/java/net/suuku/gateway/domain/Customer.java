@@ -2,6 +2,7 @@ package net.suuku.gateway.domain;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
+import java.io.Serial;
 import java.io.Serializable;
 import net.suuku.gateway.domain.enumeration.Gender;
 import org.springframework.data.annotation.Id;
@@ -15,6 +16,7 @@ import org.springframework.data.relational.core.mapping.Table;
 @Table("customer")
 public class Customer implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Id

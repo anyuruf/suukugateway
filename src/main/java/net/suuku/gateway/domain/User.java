@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Locale;
@@ -22,6 +23,7 @@ import org.springframework.data.relational.core.mapping.Table;
 @Table("suuku_user")
 public class User extends AbstractAuditingEntity<String> implements Serializable, Persistable<String> {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Id

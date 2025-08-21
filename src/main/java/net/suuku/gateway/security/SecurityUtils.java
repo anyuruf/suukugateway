@@ -41,8 +41,8 @@ public final class SecurityUtils {
             return null;
         } else if (authentication.getPrincipal() instanceof UserDetails springSecurityUser) {
             return springSecurityUser.getUsername();
-        } else if (authentication instanceof JwtAuthenticationToken) {
-            return (String) ((JwtAuthenticationToken) authentication).getToken().getClaims().get("preferred_username");
+        } else if (authentication instanceof JwtAuthenticationToken token) {
+            return (String) token.getToken().getClaims().get("preferred_username");
         } else if (authentication.getPrincipal() instanceof DefaultOidcUser) {
             Map<String, Object> attributes = ((DefaultOidcUser) authentication.getPrincipal()).getAttributes();
             if (attributes.containsKey("preferred_username")) {

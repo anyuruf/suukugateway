@@ -2,6 +2,7 @@ package net.suuku.gateway.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.*;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 import org.springframework.data.annotation.Id;
@@ -16,6 +17,7 @@ import org.springframework.data.relational.core.mapping.Table;
 @JsonIgnoreProperties(value = { "new", "id" })
 public class Authority implements Serializable, Persistable<String> {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @NotNull(message = "must not be null")

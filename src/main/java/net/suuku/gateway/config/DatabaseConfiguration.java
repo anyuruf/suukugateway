@@ -32,7 +32,7 @@ public class DatabaseConfiguration {
     // LocalDateTime seems to be the only type that is supported across all drivers atm
     // See https://github.com/r2dbc/r2dbc-h2/pull/139 https://github.com/mirromutth/r2dbc-mysql/issues/105
     @Bean
-    public R2dbcCustomConversions r2dbcCustomConversions(R2dbcDialect dialect) {
+    R2dbcCustomConversions r2dbcCustomConversions(R2dbcDialect dialect) {
         List<Object> converters = new ArrayList<>();
         converters.add(InstantWriteConverter.INSTANCE);
         converters.add(InstantReadConverter.INSTANCE);
@@ -45,17 +45,17 @@ public class DatabaseConfiguration {
     }
 
     @Bean
-    public R2dbcDialect dialect(ConnectionFactory connectionFactory) {
+    R2dbcDialect dialect(ConnectionFactory connectionFactory) {
         return DialectResolver.getDialect(connectionFactory);
     }
 
     @Bean
-    public UpdateMapper updateMapper(R2dbcDialect dialect, MappingR2dbcConverter mappingR2dbcConverter) {
+    UpdateMapper updateMapper(R2dbcDialect dialect, MappingR2dbcConverter mappingR2dbcConverter) {
         return new UpdateMapper(dialect, mappingR2dbcConverter);
     }
 
     @Bean
-    public SqlRenderer sqlRenderer(R2dbcDialect dialect) {
+    SqlRenderer sqlRenderer(R2dbcDialect dialect) {
         RenderContextFactory factory = new RenderContextFactory(dialect);
         return SqlRenderer.create(factory.createRenderContext());
     }

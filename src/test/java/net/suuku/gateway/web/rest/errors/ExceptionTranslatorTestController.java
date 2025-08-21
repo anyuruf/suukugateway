@@ -28,7 +28,7 @@ public class ExceptionTranslatorTestController {
     }
 
     @GetMapping("/missing-servlet-request-parameter")
-    public void missingServletRequestParameterException(@RequestParam("param") String param) {
+    public void missingServletRequestParameterException(@RequestParam String param) {
         // empty method
     }
 

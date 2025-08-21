@@ -13,40 +13,33 @@
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # ===================================================================
 
-logging:
-  level:
-    ROOT: DEBUG
-    '[tech.jhipster]': DEBUG
-    '[org.hibernate.SQL]': DEBUG
-    '[net.suuku.gateway]': DEBUG
+logging.level:
+  ROOT: DEBUG
+  '[tech.jhipster]': DEBUG
+  '[org.hibernate.SQL]': DEBUG
+  '[net.suuku.gateway]': DEBUG
 
 management:
   zipkin: # Use the "zipkin" Maven profile to have the Spring Cloud Zipkin dependencies
-    tracing:
-      endpoint: http://localhost:9411/api/v2/spans
-  tracing:
-    sampling:
-      probability: 1.0 # report 100% of traces
+    tracing.endpoint: http://localhost:9411/api/v2/spans
+  tracing.sampling.probability: 1.0 # report 100% of traces
 
 spring:
-  jackson:
-    serialization:
-      indent-output: true
+  jackson.serialization.indent-output: true
   liquibase:
     # Remove 'faker' if you do not want the sample data to be loaded automatically
     contexts: dev, faker
     url: ${SUUKU_POSTGRESDB_JDBC_URL}
     default-schema: suuku_domain
-  messages:
-    cache-duration: PT1S # 1 second, see the ISO 8601 standard
+    username: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+  messages.cache-duration: PT1S # 1 second, see the ISO 8601 standard
   r2dbc:
     url: ${SUUKU_POSTGRESDB_R2DBC_URL}
     username: ${SUUKU_POSTGRESDB_USERNAME}
     password: ${SUUKU_POSTGRESDB_PASSWORD}
-    properties:
-      schema: suuku_domain
-  thymeleaf:
-    cache: false
+    properties.schema: suuku_domain
+  thymeleaf.cache: false
 
 server:
   port: 8080
@@ -60,11 +53,10 @@ server:
 # ===================================================================
 
 jhipster:
-  gateway:
-    rate-limiting:
-      enabled: false
-      limit: 100000
-      duration-in-seconds: 3600
+  gateway.rate-limiting:
+    enabled: false
+    limit: 100000
+    duration-in-seconds: 3600
   # CORS is only enabled by default with the "dev" profile
   cors:
     # Allow Ionic for JHipster by default (* no longer allowed in Spring Boot 2.4+)

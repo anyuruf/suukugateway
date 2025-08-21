@@ -79,7 +79,7 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+    SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
             .securityMatcher(
                 new NegatedServerWebExchangeMatcher(
@@ -170,7 +170,7 @@ public class SecurityConfiguration {
      * @return a {@link ReactiveOAuth2UserService} that has the groups from the IdP.
      */
     @Bean
-    public ReactiveOAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
+    ReactiveOAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
         final OidcReactiveOAuth2UserService delegate = new OidcReactiveOAuth2UserService();
 
         return userRequest -> {
@@ -183,8 +183,7 @@ public class SecurityConfiguration {
                     user
                         .getAuthorities()
                         .forEach(authority -> {
-                            if (authority instanceof OidcUserAuthority) {
-                                OidcUserAuthority oidcUserAuthority = (OidcUserAuthority) authority;
+                            if (authority instanceof OidcUserAuthority oidcUserAuthority) {
                                 mappedAuthorities.addAll(
                                     SecurityUtils.extractAuthorityFromClaims(oidcUserAuthority.getUserInfo().getClaims())
                                 );

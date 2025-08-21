@@ -30,7 +30,7 @@ public class LiquibaseConfiguration {
     }
 
     @Bean
-    public SpringLiquibase liquibase(
+    SpringLiquibase liquibase(
         @Qualifier("taskExecutor") Executor executor,
         LiquibaseProperties liquibaseProperties,
         R2dbcProperties dataSourceProperties

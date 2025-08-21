@@ -88,7 +88,7 @@ public class CustomerResource {
      */
     @PutMapping("/{id}")
     public Mono<ResponseEntity<Customer>> updateCustomer(
-        @PathVariable(value = "id", required = false) final Long id,
+        @PathVariable(required = false) final Long id,
         @Valid @RequestBody Customer customer
     ) throws URISyntaxException {
         LOG.debug("REST request to update Customer : {}, {}", id, customer);
@@ -130,7 +130,7 @@ public class CustomerResource {
      */
     @PatchMapping(value = "/{id}", consumes = { "application/json", "application/merge-patch+json" })
     public Mono<ResponseEntity<Customer>> partialUpdateCustomer(
-        @PathVariable(value = "id", required = false) final Long id,
+        @PathVariable(required = false) final Long id,
         @NotNull @RequestBody Customer customer
     ) throws URISyntaxException {
         LOG.debug("REST request to partial update Customer partially : {}, {}", id, customer);
@@ -172,7 +172,7 @@ public class CustomerResource {
     public Mono<ResponseEntity<List<Customer>>> getAllCustomers(
         @org.springdoc.core.annotations.ParameterObject Pageable pageable,
         ServerHttpRequest request,
-        @RequestParam(name = "eagerload", required = false, defaultValue = "true") boolean eagerload
+        @RequestParam(required = false, defaultValue = "true") boolean eagerload
     ) {
         LOG.debug("REST request to get a page of Customers");
         return customerService
@@ -197,7 +197,7 @@ public class CustomerResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the customer, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/{id}")
-    public Mono<ResponseEntity<Customer>> getCustomer(@PathVariable("id") Long id) {
+    public Mono<ResponseEntity<Customer>> getCustomer(@PathVariable Long id) {
         LOG.debug("REST request to get Customer : {}", id);
         Mono<Customer> customer = customerService.findOne(id);
         return ResponseUtil.wrapOrNotFound(customer);
@@ -210,7 +210,7 @@ public class CustomerResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/{id}")
-    public Mono<ResponseEntity<Void>> deleteCustomer(@PathVariable("id") Long id) {
+    public Mono<ResponseEntity<Void>> deleteCustomer(@PathVariable Long id) {
         LOG.debug("REST request to delete Customer : {}", id);
         return customerService
             .delete(id)

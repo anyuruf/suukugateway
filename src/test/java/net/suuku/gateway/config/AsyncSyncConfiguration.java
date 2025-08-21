@@ -9,7 +9,7 @@ import org.springframework.core.task.SyncTaskExecutor;
 public class AsyncSyncConfiguration {
 
     @Bean(name = "taskExecutor")
-    public Executor taskExecutor() {
+    Executor taskExecutor() {
         return new SyncTaskExecutor();
     }
 }
