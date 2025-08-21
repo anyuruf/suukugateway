@@ -20,7 +20,7 @@ import org.springframework.data.relational.core.mapping.Table;
 /**
  * A user.
  */
-@Table("suuku_user")
+@Table("jhi_user")
 public class User extends AbstractAuditingEntity<String> implements Serializable, Persistable<String> {
 
     @Serial
