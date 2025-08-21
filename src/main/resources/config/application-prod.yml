@@ -32,19 +32,15 @@ management:
       probability: 1.0 # report 100% of traces
 
 spring:
-  devtools:
-    restart:
-      enabled: false
-    livereload:
-      enabled: false
   # Replace by 'prod, faker' to add the faker context and have sample data loaded in production
   liquibase:
     contexts: prod
-    url: jdbc:postgresql://suuku-postgres-rw:5432/suuku_gateway
+    url: ${SUUKU_POSTGRESDB_JDBC_URL}
+    password: ${SUUKU_POSTGRESDB_PASSWORD}
   r2dbc:
-    url: r2dbc:postgresql://suuku-postgres-rw:5432/suuku_gateway
-    username: suuku_admin
-    password:
+    url: ${SUUKU_POSTGRESDB_R2DBC_URL}
+    username: ${SUUKU_POSTGRESDB_USERNAME}
+    password: ${SUUKU_POSTGRESDB_PASSWORD}
   thymeleaf:
     cache: true
 
