@@ -8,6 +8,8 @@ import org.springframework.data.relational.core.sql.Table;
 
 public class CustomerSqlHelper {
 
+    private CustomerSqlHelper() {}
+
     public static List<Expression> getColumns(Table table, String columnPrefix) {
         List<Expression> columns = new ArrayList<>();
         columns.add(Column.aliased("id", table, columnPrefix + "_id"));

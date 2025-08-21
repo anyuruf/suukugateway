@@ -34,8 +34,6 @@ public class DatabaseConfiguration {
     @Bean
     R2dbcCustomConversions r2dbcCustomConversions(R2dbcDialect dialect) {
         List<Object> converters = new ArrayList<>();
-        converters.add(InstantWriteConverter.INSTANCE);
-        converters.add(InstantReadConverter.INSTANCE);
         converters.add(BitSetReadConverter.INSTANCE);
         converters.add(DurationWriteConverter.INSTANCE);
         converters.add(DurationReadConverter.INSTANCE);
@@ -58,25 +56,6 @@ public class DatabaseConfiguration {
     SqlRenderer sqlRenderer(R2dbcDialect dialect) {
         RenderContextFactory factory = new RenderContextFactory(dialect);
         return SqlRenderer.create(factory.createRenderContext());
-    }
-
-    @WritingConverter
-    public enum InstantWriteConverter implements Converter<Instant, LocalDateTime> {
-        INSTANCE;
-
-        public LocalDateTime convert(Instant source) {
-            return LocalDateTime.ofInstant(source, ZoneOffset.UTC);
-        }
-    }
-
-    @ReadingConverter
-    public enum InstantReadConverter implements Converter<LocalDateTime, Instant> {
-        INSTANCE;
-
-        @Override
-        public Instant convert(LocalDateTime localDateTime) {
-            return localDateTime.toInstant(ZoneOffset.UTC);
-        }
     }
 
     @ReadingConverter
