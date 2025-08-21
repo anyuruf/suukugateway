@@ -10,8 +10,8 @@
         Added the entity Customer.
     -->
     <changeSet id="20250420101047-1" author="jhipster">
-        <createTable tableName="customer" remarks="Entities for Store Gateway">
-            <column name="id" type="bigint" autoIncrement="true" startWith="1500">
+        <createTable tableName="customer" schemaName="suuku_domain" remarks="Entities for Store Gateway">
+            <column name="id" type="bigint" autoIncrement="true" startWith="1535">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="first_name" type="varchar(255)">

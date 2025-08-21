@@ -11,7 +11,7 @@
         The initial schema has the '00000000000001' id, so that it is over-written if we re-generate it.
     -->
     <changeSet id="00000000000001" author="jhipster">
-        <createTable tableName="jhi_user">
+        <createTable tableName="jhi_user" schemaName="suuku_domain">
             <column name="id" type="varchar(100)">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -36,13 +36,13 @@
             <column name="last_modified_date" type="timestamp"/>
         </createTable>
 
-        <createTable tableName="jhi_authority">
+        <createTable tableName="jhi_authority" schemaName="suuku_domain">
             <column name="name" type="varchar(50)">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
         </createTable>
 
-        <createTable tableName="jhi_user_authority">
+        <createTable tableName="jhi_user_authority" schemaName="suuku_domain">
             <column name="user_id" type="varchar(100)">
                 <constraints nullable="false"/>
             </column>
@@ -56,11 +56,15 @@
         <addForeignKeyConstraint baseColumnNames="authority_name"
                                  baseTableName="jhi_user_authority"
                                  constraintName="fk_authority_name"
+                                 baseTableSchemaName="suuku_domain"
+                                 referencedTableSchemaName="suuku_domain"
                                  referencedColumnNames="name"
                                  referencedTableName="jhi_authority"/>
 
         <addForeignKeyConstraint baseColumnNames="user_id"
                                  baseTableName="jhi_user_authority"
+                                 baseTableSchemaName="suuku_domain"
+                                 referencedTableSchemaName="suuku_domain"
                                  constraintName="fk_user_id"
                                  referencedColumnNames="id"
                                  referencedTableName="jhi_user"/>
@@ -76,7 +80,7 @@
     </changeSet>
 
     <changeSet author="jhipster" id="00000000000002" context="test">
-        <createTable tableName="jhi_date_time_wrapper">
+        <createTable tableName="jhi_date_time_wrapper" schemaName="suuku_domain">
             <column autoIncrement="true" name="id" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="jhi_date_time_wrapperPK"/>
             </column>

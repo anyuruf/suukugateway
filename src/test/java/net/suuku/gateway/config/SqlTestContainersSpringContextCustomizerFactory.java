@@ -31,6 +31,7 @@ public class SqlTestContainersSpringContextCustomizerFactory implements ContextC
                     log.info("Warming up the sql database");
                     if (null == prodTestContainer) {
                         try {
+                            @SuppressWarnings("unchecked")
                             Class<? extends SqlTestContainer> containerClass = (Class<? extends SqlTestContainer>) Class.forName(
                                 this.getClass().getPackageName() + ".PostgreSqlTestContainer"
                             );
