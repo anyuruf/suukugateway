@@ -1,5 +1,7 @@
 package net.suuku.gateway.security;
 
+import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.PREFERRED_USERNAME;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -42,11 +44,11 @@ public final class SecurityUtils {
         } else if (authentication.getPrincipal() instanceof UserDetails springSecurityUser) {
             return springSecurityUser.getUsername();
         } else if (authentication instanceof JwtAuthenticationToken token) {
-            return (String) token.getToken().getClaims().get("preferred_username");
-        } else if (authentication.getPrincipal() instanceof DefaultOidcUser) {
-            Map<String, Object> attributes = ((DefaultOidcUser) authentication.getPrincipal()).getAttributes();
-            if (attributes.containsKey("preferred_username")) {
-                return (String) attributes.get("preferred_username");
+            return (String) token.getToken().getClaims().get(PREFERRED_USERNAME);
+        } else if (authentication.getPrincipal() instanceof DefaultOidcUser defaultOidcUser) {
+            Map<String, Object> attributes = defaultOidcUser.getAttributes();
+            if (attributes.containsKey(PREFERRED_USERNAME)) {
+                return (String) attributes.get(PREFERRED_USERNAME);
             }
         } else if (authentication.getPrincipal() instanceof String s) {
             return s;

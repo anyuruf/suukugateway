@@ -39,7 +39,7 @@ class CustomerRepositoryInternalImpl extends SimpleR2dbcRepository<Customer, Lon
     private final CustomerRowMapper customerMapper;
 
     private static final Table entityTable = Table.aliased("customer", EntityManager.ENTITY_ALIAS);
-    private static final Table userTable = Table.aliased("suuku_user", "s_user");
+    private static final Table userTable = Table.aliased("jhi_user", "s_user");
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public CustomerRepositoryInternalImpl(
