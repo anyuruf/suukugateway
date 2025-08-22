@@ -108,13 +108,8 @@ class CustomerRepositoryInternalImpl extends SimpleR2dbcRepository<Customer, Lon
     }
 
     private Customer process(Row row, RowMetadata metadata) {
-        Customer entity = customerMapper.apply(row, "e");
+        Customer entity = customerMapper.apply(row, "s");
         entity.setUser(userMapper.apply(row, "user"));
         return entity;
-    }
-
-    @Override
-    public <S extends Customer> Mono<S> save(S entity) {
-        return super.save(entity);
     }
 }
