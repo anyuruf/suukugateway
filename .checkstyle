@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <fileset-config file-format-version="1.2.0" simple-config="false" sync-formatter="false">
-  <local-check-config name="maven-checkstyle-plugin default" location="file:/home/iyit/eclipse-workspace/work-space/suuku-postgres/suuku_gateway/checkstyle.xml" type="remote" description="maven-checkstyle-plugin configuration default">
-    <property name="checkstyle.header.file" value="/home/iyit/eclipse-workspace/vorkshop/.metadata/.plugins/org.eclipse.core.resources/.projects/suuku_gateway/com.basistech.m2e.code.quality.checkstyleConfigurator/checkstyle-header-default.txt"/>
+  <local-check-config name="maven-checkstyle-plugin default" location="file:/home/iyit/eclipse-workspace/work-space/suuku-postgres/suukugateway/checkstyle.xml" type="remote" description="maven-checkstyle-plugin configuration default">
+    <property name="checkstyle.header.file" value="/home/iyit/eclipse-workspace/vorkshop/.metadata/.plugins/org.eclipse.core.resources/.projects/suukugateway/com.basistech.m2e.code.quality.checkstyleConfigurator/checkstyle-header-default.txt"/>
     <property name="checkstyle.cache.file" value="${project_loc}/target/checkstyle-cachefile"/>
   </local-check-config>
   <fileset name="java-sources-default" enabled="true" check-config-name="maven-checkstyle-plugin default" local="true">
