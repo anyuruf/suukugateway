@@ -16,8 +16,8 @@
 logging:
   level:
     ROOT: INFO
-    tech.jhipster: INFO
-    net.suuku.gateway: INFO
+    '[tech.jhipster]': INFO
+    '[net.suuku.gateway]': INFO
 
 management:
   prometheus:

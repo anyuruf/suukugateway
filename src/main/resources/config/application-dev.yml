@@ -25,21 +25,39 @@ management:
   tracing.sampling.probability: 1.0 # report 100% of traces
 
 spring:
-  jackson.serialization.indent-output: true
   liquibase:
     # Remove 'faker' if you do not want the sample data to be loaded automatically
     contexts: dev, faker
     url: ${SUUKU_POSTGRESDB_JDBC_URL}
     default-schema: suuku_domain
-    username: ${spring.datasource.username}
-    password: ${spring.datasource.password}
   messages.cache-duration: PT1S # 1 second, see the ISO 8601 standard
   r2dbc:
     url: ${SUUKU_POSTGRESDB_R2DBC_URL}
     username: ${SUUKU_POSTGRESDB_USERNAME}
     password: ${SUUKU_POSTGRESDB_PASSWORD}
-    properties.schema: suuku_domain
+    properties:
+      schema: suuku_domain
   thymeleaf.cache: false
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: suuku-product
+              uri: http://localhost:8081/
+              predicates:
+                - Path=/product/**
+              filters:
+                - RewritePath=/product, /
+            - id: suuku-invoice
+              uri: http://localhost:8082/
+              predicates:
+                - Path=/invoice/**
+              filters:
+                - StripPrefix=1
+              httpclient:
+                pool:
+                max-connections: 1000
 
 server:
   port: 8080
@@ -53,6 +71,8 @@ server:
 # ===================================================================
 
 jhipster:
+  security:
+      content-security-policy: "default-src 'self'; connect-src 'self' ws://localhost:9001 http://localhost:9001"
   gateway.rate-limiting:
     enabled: false
     limit: 100000
@@ -60,7 +80,7 @@ jhipster:
   # CORS is only enabled by default with the "dev" profile
   cors:
     # Allow Ionic for JHipster by default (* no longer allowed in Spring Boot 2.4+)
-    allowed-origins: 'http://localhost:8100,https://localhost:8100'
+    allowed-origins: 'http://localhost:9000,https://localhost:8100'
     # Enable CORS when running in GitHub Codespaces
     allowed-origin-patterns: 'https://*.githubpreview.dev'
     allowed-methods: '*'
