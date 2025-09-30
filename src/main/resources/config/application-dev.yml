@@ -42,6 +42,8 @@ spring:
     gateway:
       server:
         webflux:
+          default-filters:
+            - TokenRelay
           routes:
             - id: suuku-product
               uri: http://localhost:8081/

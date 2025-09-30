@@ -103,26 +103,28 @@ management:
 spring:
   application:
     name: suuku_gateway
-
+  cloud:
     gateway:
-      default-filters:
-        - TokenRelay
-      routes:
-        - id: suuku-product
-          uri: lb://suuku-product
-          predicates:
-            - Path=/product/**
-          filters:
-            - RewritePath=/product, /
-        - id: suuku-invoice
-          uri: lb://suuku-invoice/
-          predicates:
-            - Path=/invoice/**
-          filters:
-            - StripPrefix=1
-      httpclient:
-        pool:
-          max-connections: 1000
+      server:
+        webflux:
+          default-filters:
+            - TokenRelay
+          routes:
+            - id: suuku-product
+              uri: lb://suuku-product
+              predicates:
+                - Path=/product/**
+              filters:
+                - RewritePath=/product, /
+            - id: suuku-invoice
+              uri: lb://suuku-invoice/
+              predicates:
+                - Path=/invoice/**
+              filters:
+                - StripPrefix=1
+              httpclient:
+                pool:
+                  max-connections: 1000
 
   profiles:
     # The commented value for `active` can be replaced with valid Spring profiles to load.
@@ -154,7 +156,7 @@ spring:
           oidc:
             client-id: ${SUUKU_KEYCLOAK_APP_CLIENT}
             client-secret: ${SUUKU_KEYCLOAK_APP_CLIENT_SECRET}
-            scope: openid, profile, email, offline_access # last one for refresh tokens
+            scope: profile, email, offline_access # last one for refresh tokens
   task:
     execution:
       thread-name-prefix: suuku-gateway-task-
