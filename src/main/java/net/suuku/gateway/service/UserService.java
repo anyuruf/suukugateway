@@ -183,10 +183,13 @@ public class UserService {
     public Mono<AdminUserDTO> getUserFromAuthentication(AbstractAuthenticationToken authToken) {
         Map<String, Object> attributes;
         if (authToken instanceof OAuth2AuthenticationToken token) {
+        	LOG.info("OAuth2AuthenticationToke: {}", token);
             attributes = token.getPrincipal().getAttributes();
         } else if (authToken instanceof JwtAuthenticationToken token) {
+        	LOG.info("JWTAuthenticationToke: {}", token);
             attributes = token.getTokenAttributes();
         } else {
+        	LOG.info("Illegal ArgumentExceptionToken: {}", authToken);
             throw new IllegalArgumentException("AuthenticationToken is not OAuth2 or JWT!");
         }
         User user = getUser(attributes);

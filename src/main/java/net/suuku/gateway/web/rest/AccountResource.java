@@ -46,8 +46,8 @@ public class AccountResource {
      */
     @GetMapping("/account")
     public Mono<AdminUserDTO> getAccount(Principal principal) {
-        if (principal instanceof AbstractAuthenticationToken token) {
-            return userService.getUserFromAuthentication(token);
+        if (principal instanceof AbstractAuthenticationToken) {
+            return userService.getUserFromAuthentication((AbstractAuthenticationToken) principal);
         } else {
             throw new AccountResourceException("User could not be found");
         }
