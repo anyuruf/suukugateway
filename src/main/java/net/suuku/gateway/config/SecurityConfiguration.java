@@ -4,8 +4,6 @@ import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.PREFERRED_USERNAME;
 import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers.pathMatchers;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -13,9 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
-import net.suuku.gateway.security.AuthoritiesConstants;
-import net.suuku.gateway.security.SecurityUtils;
-import net.suuku.gateway.security.oauth2.AudienceValidator;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,9 +35,14 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
-import org.springframework.security.oauth2.jwt.*;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.security.oauth2.jwt.JwtValidators;
+import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
+import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.csrf.CookieServerCsrfTokenRepository;
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.server.header.ReferrerPolicyServerHttpHeadersWriter;
@@ -49,6 +50,14 @@ import org.springframework.security.web.server.header.XFrameOptionsServerHttpHea
 import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.OrServerWebExchangeMatcher;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
+import net.suuku.gateway.security.AuthoritiesConstants;
+import net.suuku.gateway.security.SecurityUtils;
+import net.suuku.gateway.security.oauth2.AudienceValidator;
+import net.suuku.gateway.web.filter.SpaWebFilter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.jhipster.config.JHipsterProperties;
@@ -79,7 +88,7 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
             .securityMatcher(
                 new NegatedServerWebExchangeMatcher(
@@ -92,9 +101,11 @@ public class SecurityConfiguration {
                     .csrfTokenRepository(CookieServerCsrfTokenRepository.withHttpOnlyFalse())
                     // See https://stackoverflow.com/q/74447118/65681
                     .csrfTokenRequestHandler(new ServerCsrfTokenRequestAttributeHandler())
+                    
             )
             // See https://github.com/spring-projects/spring-security/issues/5766
             .addFilterAt(new CookieCsrfFilter(), SecurityWebFiltersOrder.REACTOR_CONTEXT)
+            .addFilterAfter(new SpaWebFilter(), SecurityWebFiltersOrder.HTTPS_REDIRECT)
             .headers(headers ->
                 headers
                     .contentSecurityPolicy(csp -> csp.policyDirectives(jHipsterProperties.getSecurity().getContentSecurityPolicy()))
@@ -111,6 +122,10 @@ public class SecurityConfiguration {
             .authorizeExchange(authz ->
                 // prettier-ignore
                 authz
+                    .pathMatchers("/").permitAll()
+                    .pathMatchers("/*.*").permitAll()
+                    .pathMatchers("/oauth2/**").permitAll()
+                    .pathMatchers("/login/**").permitAll()
                     .pathMatchers("/api/authenticate").permitAll()
                     .pathMatchers("/api/auth-info").permitAll()
                     .pathMatchers("/api/admin/**").hasAuthority(AuthoritiesConstants.ADMIN)
@@ -125,9 +140,16 @@ public class SecurityConfiguration {
                     .pathMatchers("/management/prometheus").permitAll()
                     .pathMatchers("/management/**").hasAuthority(AuthoritiesConstants.ADMIN)
             )
-            .oauth2Login(oauth2 -> oauth2.authorizationRequestResolver(authorizationRequestResolver(this.clientRegistrationRepository)))
+            .oauth2Login(oauth2 -> 		     		oauth2.authorizationRequestResolver(authorizationRequestResolver(this.clientRegistrationRepository))
+            		 .authenticationSuccessHandler(
+            		            new RedirectServerAuthenticationSuccessHandler("http://localhost:9000")
+            		        ))
             .oauth2Client(withDefaults())
-            .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
+            .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
+            .headers(headers -> headers
+        			.contentSecurityPolicy(policy -> policy
+        				.policyDirectives("script-src 'self' https://trustedscripts.example.com; object-src https://trustedplugins.example.com; report-uri /csp-report-endpoint/")
+        			));
         return http.build();
     }
 
@@ -170,7 +192,7 @@ public class SecurityConfiguration {
      * @return a {@link ReactiveOAuth2UserService} that has the groups from the IdP.
      */
     @Bean
-    ReactiveOAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
+    public ReactiveOAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
         final OidcReactiveOAuth2UserService delegate = new OidcReactiveOAuth2UserService();
 
         return userRequest -> {
@@ -183,7 +205,8 @@ public class SecurityConfiguration {
                     user
                         .getAuthorities()
                         .forEach(authority -> {
-                            if (authority instanceof OidcUserAuthority oidcUserAuthority) {
+                            if (authority instanceof OidcUserAuthority) {
+                                OidcUserAuthority oidcUserAuthority = (OidcUserAuthority) authority;
                                 mappedAuthorities.addAll(
                                     SecurityUtils.extractAuthorityFromClaims(oidcUserAuthority.getUserInfo().getClaims())
                                 );

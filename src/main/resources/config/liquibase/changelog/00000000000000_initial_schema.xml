@@ -10,7 +10,7 @@
         JHipster core tables.
         The initial schema has the '00000000000001' id, so that it is over-written if we re-generate it.
     -->
-    <changeSet id="00000000000001" author="jhipster"  runOnChange="true">
+    <changeSet id="00000000000001" author="jhipster">
         <createTable tableName="jhi_user" schemaName="suuku_domain">
             <column name="id" type="varchar(100)">
                 <constraints primaryKey="true" nullable="false"/>
