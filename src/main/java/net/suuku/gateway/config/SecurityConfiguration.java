@@ -42,7 +42,6 @@ import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.csrf.CookieServerCsrfTokenRepository;
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.server.header.ReferrerPolicyServerHttpHeadersWriter;
@@ -122,28 +121,23 @@ public class SecurityConfiguration {
             .authorizeExchange(authz ->
                 // prettier-ignore
                 authz
-                    .pathMatchers("/").permitAll()
-                    .pathMatchers("/*.*").permitAll()
-                    .pathMatchers("/oauth2/**").permitAll()
-                    .pathMatchers("/login/**").permitAll()
-                    .pathMatchers("/api/authenticate").permitAll()
-                    .pathMatchers("/api/auth-info").permitAll()
-                    .pathMatchers("/api/admin/**").hasAuthority(AuthoritiesConstants.ADMIN)
-                    .pathMatchers("/api/**").authenticated()
-                    .pathMatchers("/services/*/management/health/readiness").permitAll()
-                    .pathMatchers("/services/*/v3/api-docs").hasAuthority(AuthoritiesConstants.ADMIN)
-                    .pathMatchers("/services/**").authenticated()
-                    .pathMatchers("/v3/api-docs/**").hasAuthority(AuthoritiesConstants.ADMIN)
-                    .pathMatchers("/management/health").permitAll()
-                    .pathMatchers("/management/health/**").permitAll()
-                    .pathMatchers("/management/info").permitAll()
-                    .pathMatchers("/management/prometheus").permitAll()
-                    .pathMatchers("/management/**").hasAuthority(AuthoritiesConstants.ADMIN)
-            )
-            .oauth2Login(oauth2 -> 		     		oauth2.authorizationRequestResolver(authorizationRequestResolver(this.clientRegistrationRepository))
-            		 .authenticationSuccessHandler(
-            		            new RedirectServerAuthenticationSuccessHandler("http://localhost:9000")
-            		        ))
+                .pathMatchers("/").permitAll()
+                .pathMatchers("/*.*").permitAll()
+                .pathMatchers("/api/authenticate").permitAll()
+                .pathMatchers("/api/auth-info").permitAll()
+                .pathMatchers("/api/admin/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                .pathMatchers("/api/**").authenticated()
+                .pathMatchers("/services/*/management/health/readiness").permitAll()
+                .pathMatchers("/services/*/v3/api-docs").hasAuthority(AuthoritiesConstants.ADMIN)
+                .pathMatchers("/services/**").authenticated()
+                .pathMatchers("/v3/api-docs/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                .pathMatchers("/management/health").permitAll()
+                .pathMatchers("/management/health/**").permitAll()
+                .pathMatchers("/management/info").permitAll()
+                .pathMatchers("/management/prometheus").permitAll()
+                .pathMatchers("/management/**").hasAuthority(AuthoritiesConstants.ADMIN)
+        )
+            .oauth2Login(oauth2 -> 		     		oauth2.authorizationRequestResolver(authorizationRequestResolver(this.clientRegistrationRepository)))
             .oauth2Client(withDefaults())
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
             .headers(headers -> headers

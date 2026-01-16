@@ -183,9 +183,9 @@ public class UserService {
     public Mono<AdminUserDTO> getUserFromAuthentication(AbstractAuthenticationToken authToken) {
         Map<String, Object> attributes;
         if (authToken instanceof OAuth2AuthenticationToken token) {
-        	LOG.info("OAuth2AuthenticationToke: {}", token);
+        	LOG.info("OAuth2AuthenticationToken: {}", token);
             attributes = token.getPrincipal().getAttributes();
-        } else if (authToken instanceof JwtAuthenticationToken token) {
+            LOG.info("attributes: {}", attributes);       } else if (authToken instanceof JwtAuthenticationToken token) {
         	LOG.info("JWTAuthenticationToke: {}", token);
             attributes = token.getTokenAttributes();
         } else {
