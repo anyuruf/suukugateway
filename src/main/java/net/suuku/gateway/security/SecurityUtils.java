@@ -8,6 +8,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,6 +19,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+
 import reactor.core.publisher.Mono;
 
 /**
@@ -23,9 +27,12 @@ import reactor.core.publisher.Mono;
  */
 public final class SecurityUtils {
 
-    public static final String CLAIMS_NAMESPACE = "https://www.suuku.net/";
+    
+    private static final Logger LOG = LoggerFactory.getLogger(SecurityUtils.class);
+   
 
     private SecurityUtils() {}
+    
 
     /**
      * Get the login of the current user.
@@ -40,17 +47,22 @@ public final class SecurityUtils {
 
     private static String extractPrincipal(Authentication authentication) {
         if (authentication == null) {
+        	LOG.info("SecurityUtils.extractPrincipal (authenticaction = null)");
             return null;
         } else if (authentication.getPrincipal() instanceof UserDetails springSecurityUser) {
+        	LOG.info("SecurityUtils.extractPrincipal (authenticaction Type UserDtails) : {}", springSecurityUser);
             return springSecurityUser.getUsername();
         } else if (authentication instanceof JwtAuthenticationToken token) {
+        	LOG.info("SecurityUtils.extractPrincipal (authenticaction Type JWTAuthenticationToken) : {}", token);
             return (String) token.getToken().getClaims().get(PREFERRED_USERNAME);
         } else if (authentication.getPrincipal() instanceof DefaultOidcUser defaultOidcUser) {
+        	LOG.info("SecurityUtils.extractPrincipal (authenticaction Type DefaultOidcUser) : {}", defaultOidcUser);
             Map<String, Object> attributes = defaultOidcUser.getAttributes();
             if (attributes.containsKey(PREFERRED_USERNAME)) {
                 return (String) attributes.get(PREFERRED_USERNAME);
             }
         } else if (authentication.getPrincipal() instanceof String s) {
+        	LOG.info("SecurityUtils.extractPrincipal (authenticaction type String) : {}", s);
             return s;
         }
         return null;
@@ -107,6 +119,7 @@ public final class SecurityUtils {
     }
 
     public static List<GrantedAuthority> extractAuthorityFromClaims(Map<String, Object> claims) {
+    	LOG.info("Claims from eAFC: {}", claims);
         return mapRolesToGrantedAuthorities(getRolesFromClaims(claims));
     }
 
@@ -114,7 +127,7 @@ public final class SecurityUtils {
     private static Collection<String> getRolesFromClaims(Map<String, Object> claims) {
         return (Collection<String>) claims.getOrDefault(
             "groups",
-            claims.getOrDefault("roles", claims.getOrDefault(CLAIMS_NAMESPACE + "roles", new ArrayList<>()))
+            claims.getOrDefault("roles", claims.getOrDefault("roles", new ArrayList<>()))
         );
     }
 

@@ -6,12 +6,16 @@ import static org.springframework.security.web.server.util.matcher.ServerWebExch
 
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,9 +26,11 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcReactiveOAuth2UserService;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistration.ProviderDetails;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
 import org.springframework.security.oauth2.client.web.server.DefaultServerOAuth2AuthorizationRequestResolver;
@@ -34,21 +40,24 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
+import org.springframework.security.web.server.authentication.logout.DelegatingServerLogoutHandler;
+import org.springframework.security.web.server.authentication.logout.SecurityContextServerLogoutHandler;
+import org.springframework.security.web.server.authentication.logout.WebSessionServerLogoutHandler;
 import org.springframework.security.web.server.csrf.CookieServerCsrfTokenRepository;
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.server.header.ReferrerPolicyServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.XFrameOptionsServerHttpHeadersWriter.Mode;
 import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.OrServerWebExchangeMatcher;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.github.benmanes.caffeine.cache.Cache;
@@ -68,11 +77,20 @@ import tech.jhipster.web.filter.reactive.CookieCsrfFilter;
 public class SecurityConfiguration {
 
     private final JHipsterProperties jHipsterProperties;
+    private static final Logger LOG = LoggerFactory.getLogger(SecurityConfiguration.class);
+    private final JwtDecoder jwtDecoder;
+    
+    @Value("${spring.security.oauth2.client.registration.client-id:}")
+	private String  clientId;
 
-    @Value("${spring.security.oauth2.client.provider.oidc.issuer-uri}")
+    @Value("${spring.security.oauth2.client.provider.oidc.issuer-uri:}")
     private String issuerUri;
 
     private final ReactiveClientRegistrationRepository clientRegistrationRepository;
+    
+    DelegatingServerLogoutHandler logoutHandler = new DelegatingServerLogoutHandler(
+            new SecurityContextServerLogoutHandler(), new WebSessionServerLogoutHandler()
+    );
 
     // See https://github.com/jhipster/generator-jhipster/issues/18868
     // We don't use a distributed cache or the user selected cache implementation here on purpose
@@ -82,8 +100,9 @@ public class SecurityConfiguration {
         .recordStats()
         .build();
 
-    public SecurityConfiguration(ReactiveClientRegistrationRepository clientRegistrationRepository, JHipsterProperties jHipsterProperties) {
-        this.clientRegistrationRepository = clientRegistrationRepository;
+    public SecurityConfiguration(ReactiveClientRegistrationRepository clientRegistrationRepository, JHipsterProperties jHipsterProperties, JwtDecoder jwtDecoder) {
+        this.jwtDecoder = jwtDecoder;
+		this.clientRegistrationRepository = clientRegistrationRepository;
         this.jHipsterProperties = jHipsterProperties;
     }
 
@@ -122,28 +141,26 @@ public class SecurityConfiguration {
             .authorizeExchange(authz ->
                 // prettier-ignore
                 authz
-                    .pathMatchers("/").permitAll()
-                    .pathMatchers("/*.*").permitAll()
-                    .pathMatchers("/oauth2/**").permitAll()
-                    .pathMatchers("/login/**").permitAll()
-                    .pathMatchers("/api/authenticate").permitAll()
-                    .pathMatchers("/api/auth-info").permitAll()
-                    .pathMatchers("/api/admin/**").hasAuthority(AuthoritiesConstants.ADMIN)
-                    .pathMatchers("/api/**").authenticated()
-                    .pathMatchers("/services/*/management/health/readiness").permitAll()
-                    .pathMatchers("/services/*/v3/api-docs").hasAuthority(AuthoritiesConstants.ADMIN)
-                    .pathMatchers("/services/**").authenticated()
-                    .pathMatchers("/v3/api-docs/**").hasAuthority(AuthoritiesConstants.ADMIN)
-                    .pathMatchers("/management/health").permitAll()
-                    .pathMatchers("/management/health/**").permitAll()
-                    .pathMatchers("/management/info").permitAll()
-                    .pathMatchers("/management/prometheus").permitAll()
-                    .pathMatchers("/management/**").hasAuthority(AuthoritiesConstants.ADMIN)
-            )
-            .oauth2Login(oauth2 -> 		     		oauth2.authorizationRequestResolver(authorizationRequestResolver(this.clientRegistrationRepository))
-            		 .authenticationSuccessHandler(
-            		            new RedirectServerAuthenticationSuccessHandler("http://localhost:9000")
-            		        ))
+                .pathMatchers("/").permitAll()
+                .pathMatchers("/*.*").permitAll()
+                .pathMatchers("/api/authenticate").permitAll()
+                .pathMatchers("/api/auth-info").permitAll()
+                .pathMatchers("/api/admin/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                .pathMatchers("/api/**").authenticated()
+                .pathMatchers("/services/*/management/health/readiness").permitAll()
+                .pathMatchers("/services/*/v3/api-docs").hasAuthority(AuthoritiesConstants.ADMIN)
+                .pathMatchers("/services/**").authenticated()
+                .pathMatchers("/v3/api-docs/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                .pathMatchers("/management/health").permitAll()
+                .pathMatchers("/management/health/**").permitAll()
+                .pathMatchers("/management/info").permitAll()
+                .pathMatchers("/management/prometheus").permitAll()
+                .pathMatchers("/management/**").hasAuthority(AuthoritiesConstants.ADMIN)
+        )
+            .oauth2Login(oauth2 -> 	oauth2
+            		.authorizationRequestResolver(authorizationRequestResolver(this.clientRegistrationRepository))
+            		)
+            .logout((logout) -> logout.logoutHandler(logoutHandler))
             .oauth2Client(withDefaults())
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
             .headers(headers -> headers
@@ -178,6 +195,7 @@ public class SecurityConfiguration {
             new Converter<Jwt, Flux<GrantedAuthority>>() {
                 @Override
                 public Flux<GrantedAuthority> convert(Jwt jwt) {
+                	LOG.info("SecurityConfiguration.convert converts this Jwt: {}", jwt);
                     return Flux.fromIterable(SecurityUtils.extractAuthorityFromClaims(jwt.getClaims()));
                 }
             }
@@ -199,26 +217,58 @@ public class SecurityConfiguration {
             // Delegate to the default implementation for loading a user
             return delegate
                 .loadUser(userRequest)
-                .map(user -> {
-                    Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
+                .flatMap((oidcUser) -> {
+					String accessToken = userRequest.getAccessToken().getTokenValue();
+					
+					// 1) Fetch the authority information from the protected resource using accessToken
+					Set<GrantedAuthority> oidcAuthorities = extractKeycloakRoles(accessToken);
+					// 2) Map the authority information to one or more GrantedAuthority
+					oidcAuthorities.addAll(oidcUser.getAuthorities());
+					// 3) Create a copy of oidcUser but use the mappedAuthorities instead
+					ProviderDetails providerDetails = userRequest.getClientRegistration().getProviderDetails();
+					String userNameAttributeName = providerDetails.getUserInfoEndpoint().getUserNameAttributeName();
+					if (StringUtils.hasText(userNameAttributeName)) {
+						oidcUser = new DefaultOidcUser(oidcAuthorities, oidcUser.getIdToken(), oidcUser.getUserInfo(), userNameAttributeName);
+					} else {
+						oidcUser = new DefaultOidcUser(oidcAuthorities, oidcUser.getIdToken(), oidcUser.getUserInfo());
+					}
 
-                    user
-                        .getAuthorities()
-                        .forEach(authority -> {
-                            if (authority instanceof OidcUserAuthority) {
-                                OidcUserAuthority oidcUserAuthority = (OidcUserAuthority) authority;
-                                mappedAuthorities.addAll(
-                                    SecurityUtils.extractAuthorityFromClaims(oidcUserAuthority.getUserInfo().getClaims())
-                                );
-                            }
-                        });
-
-                    return new DefaultOidcUser(mappedAuthorities, user.getIdToken(), user.getUserInfo(), PREFERRED_USERNAME);
-                });
+					return Mono.just(oidcUser);
+				});
         };
-    }
+	}
+    
+    private Set<GrantedAuthority> extractKeycloakRoles(String accessToken) {
+		// Decode Jwt Token
+    	Jwt jwt = jwtDecoder.decode(accessToken);
+    	
+    	LOG.info("The Jwtie : {}", jwt);
+    	
+    	Map<String, Object> resourceAccess = jwt.getClaim("resource-access");
+    	if (resourceAccess == null) {
+    		return Collections.emptySet();
+    	}
+    	
+    	@SuppressWarnings("unchecked")
+		Map<String, Object> clientResource = (Map<String, Object>) resourceAccess.get(clientId);
+    	if (clientResource == null) {
+    		return Collections.emptySet();
+    	}
+    	
+    	@SuppressWarnings("unchecked")
+		List<String> roles = (List<String>) clientResource.get("roles");
+    	if(roles == null || roles.isEmpty()) {
+    		return Collections.emptySet();
+    	}
+ 
+    	return  roles.stream()
+    			.map(role -> new SimpleGrantedAuthority(role.toUpperCase()))
+    			.collect(Collectors.toSet());
+    	
+	}
 
-    @Bean
+
+	@Bean
     ReactiveJwtDecoder jwtDecoder(ReactiveClientRegistrationRepository registrations) {
         Mono<ClientRegistration> clientRegistration = registrations.findByRegistrationId("oidc");
 
