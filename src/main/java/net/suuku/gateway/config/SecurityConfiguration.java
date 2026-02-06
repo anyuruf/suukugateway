@@ -7,6 +7,7 @@ import static org.springframework.security.web.server.util.matcher.ServerWebExch
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,6 +26,7 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.config.web.server.ServerHttpSecurity.OAuth2ResourceServerSpec;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcReactiveOAuth2UserService;
@@ -162,7 +164,7 @@ public class SecurityConfiguration {
             		)
             .logout((logout) -> logout.logoutHandler(logoutHandler))
             .oauth2Client(withDefaults())
-            .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
+            .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()))
             .headers(headers -> headers
         			.contentSecurityPolicy(policy -> policy
         				.policyDirectives("script-src 'self' https://trustedscripts.example.com; object-src https://trustedplugins.example.com; report-uri /csp-report-endpoint/")
@@ -189,20 +191,6 @@ public class SecurityConfiguration {
             );
     }
 
-    Converter<Jwt, Mono<AbstractAuthenticationToken>> jwtAuthenticationConverter() {
-        ReactiveJwtAuthenticationConverter jwtAuthenticationConverter = new ReactiveJwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(
-            new Converter<Jwt, Flux<GrantedAuthority>>() {
-                @Override
-                public Flux<GrantedAuthority> convert(Jwt jwt) {
-                	LOG.info("SecurityConfiguration.convert converts this Jwt: {}", jwt);
-                    return Flux.fromIterable(SecurityUtils.extractAuthorityFromClaims(jwt.getClaims()));
-                }
-            }
-        );
-        jwtAuthenticationConverter.setPrincipalClaimName(PREFERRED_USERNAME);
-        return jwtAuthenticationConverter;
-    }
 
     /**
      * Map authorities from "groups" or "roles" claim in ID Token.
@@ -221,7 +209,7 @@ public class SecurityConfiguration {
 					String accessToken = userRequest.getAccessToken().getTokenValue();
 					
 					// 1) Fetch the authority information from the protected resource using accessToken
-					Set<GrantedAuthority> oidcAuthorities = extractKeycloakRoles(accessToken);
+					Set<GrantedAuthority> oidcAuthorities = new HashSet<>(extractKeycloakRoles(accessToken));
 					// 2) Map the authority information to one or more GrantedAuthority
 					oidcAuthorities.addAll(oidcUser.getAuthorities());
 					// 3) Create a copy of oidcUser but use the mappedAuthorities instead
@@ -242,26 +230,26 @@ public class SecurityConfiguration {
 		// Decode Jwt Token
     	Jwt jwt = jwtDecoder.decode(accessToken);
     	
-    	LOG.info("The Jwtie : {}", jwt);
-    	
-    	Map<String, Object> resourceAccess = jwt.getClaim("resource-access");
-    	if (resourceAccess == null) {
+    
+    	Map<String, Object> realmAccess = jwt.getClaimAsMap("realm_access");
+    	if (realmAccess == null) {
+    		// Make extractKeycloakRoles() always return a mutable set. 
+    		// return new HashSet instead of a Collections.emptySet();
+    		LOG.info("Empty realAccess: {}", realmAccess);
     		return Collections.emptySet();
     	}
     	
-    	@SuppressWarnings("unchecked")
-		Map<String, Object> clientResource = (Map<String, Object>) resourceAccess.get(clientId);
-    	if (clientResource == null) {
-    		return Collections.emptySet();
-    	}
+    	LOG.info("resourceAccess: {}", realmAccess);
     	
     	@SuppressWarnings("unchecked")
-		List<String> roles = (List<String>) clientResource.get("roles");
+		List<String> roles = (List<String>) realmAccess.get("roles");
     	if(roles == null || roles.isEmpty()) {
     		return Collections.emptySet();
     	}
  
     	return  roles.stream()
+    			.filter(String.class::isInstance)
+    	        .map(String.class::cast)
     			.map(role -> new SimpleGrantedAuthority(role.toUpperCase()))
     			.collect(Collectors.toSet());
     	
