@@ -32,6 +32,8 @@ spring:
     # Remove 'faker' if you do not want the sample data to be loaded automatically
     contexts: dev, faker
     url: ${SUUKU_POSTGRESDB_JDBC_URL}
+    user: ${SUUKU_POSTGRESDB_USERNAME}
+    password: ${SUUKU_POSTGRESDB_PASSWORD}
     default-schema: suuku_domain
   messages.cache-duration: PT1S # 1 second, see the ISO 8601 standard
   r2dbc:

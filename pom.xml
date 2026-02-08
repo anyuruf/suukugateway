@@ -845,9 +845,9 @@
             </activation>
             <properties>
                 <!-- default Spring profiles -->
-                <liquibase-plugin.password/>
-                <liquibase-plugin.url>jdbc:postgresql://localhost:5432/suukudb</liquibase-plugin.url>
-                <liquibase-plugin.username>suudmin</liquibase-plugin.username>
+                <liquibase-plugin.password>${SUUKU_POSTGRESDB_PASSWORD}</liquibase-plugin.password>
+                <liquibase-plugin.url>${SUUKU_POSTGRESDB_JDBC_URL}</liquibase-plugin.url>
+                <liquibase-plugin.username>${SUUKU_POSTGRESDB_USERNAME}</liquibase-plugin.username>
                 <profile.test>test,testdev</profile.test>
                 <spring.profiles.active>dev${profile.tls}${profile.no-liquibase}</spring.profiles.active>
             </properties>
@@ -912,9 +912,9 @@
             <id>prod</id>
             <properties>
                 <!-- default Spring profiles -->
-                <liquibase-plugin.password/>
-                <liquibase-plugin.url>jdbc:postgresql://anyuruf-postgresdb-rw:5432/suukudb</liquibase-plugin.url>
-                <liquibase-plugin.username>suudmin</liquibase-plugin.username>
+                <liquibase-plugin.password>${SUUKU_POSTGRESDB_PASSWORD}</liquibase-plugin.password>
+                <liquibase-plugin.url>${SUUKU_POSTGRESDB_JDBC_URL}</liquibase-plugin.url>
+                <liquibase-plugin.username>${SUUKU_POSTGRESDB_USERNAME}</liquibase-plugin.username>
                 <profile.test>test,testprod</profile.test>
                 <spring.profiles.active>prod${profile.api-docs}${profile.tls}${profile.e2e}${profile.no-liquibase}</spring.profiles.active>
             </properties>
